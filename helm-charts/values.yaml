@@ -1,0 +1,20 @@
+﻿replicaCount: 1
+
+image:
+  repository: frontend-service
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: NodePort
+  port: 80
+  nodePort: 30080
+
+serviceAccount:
+  create: false
+
+ingress:
+  enabled: false
+
+httpRoute:
+  enabled: false
