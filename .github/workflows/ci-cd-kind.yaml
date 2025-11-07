@@ -25,51 +25,36 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PAT }}
 
-      # 4️⃣ Build and push frontend image
-      - name: Build frontend image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          push: false
-          tags: frontend:latest
+      # 4️⃣ Build Docker images
+      - name: Build Docker images
+        run: |
+          docker build -t frontend ./frontend
+          docker build -t api ./api
+          docker build -t database ./database
 
-      # 5️⃣ Build and push API image
-      - name: Build API image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./api
-          push: false
-          tags: api:latest
+      # 5️⃣ Push Docker images to Docker Hub
+      - name: Push Docker images
+        run: |
+          docker tag frontend ${{ secrets.DOCKER_HUB_USERNAME }}/frontend:latest
+          docker tag api ${{ secrets.DOCKER_HUB_USERNAME }}/api:latest
+          docker tag database ${{ secrets.DOCKER_HUB_USERNAME }}/database:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/frontend:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/api:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/database:latest
 
-      # 6️⃣ Build and push Database image
-      - name: Build Database image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./database
-          push: false
-          tags: database:latest
-
-      # 7️⃣ Set up Kind (local Kubernetes cluster)
-      - name: Set up Kind
-        uses: engineerd/setup-kind@v0.17.0
+      # 6️⃣ (Optional) Test deployment using Kind
+      - name: Set up Kind (local Kubernetes)
+        uses: engineerd/setup-kind@v0.6.0
         with:
           version: v0.20.0
 
-      # 8️⃣ Load Docker images into Kind
       - name: Load images into Kind
         run: |
-          kind load docker-image frontend:latest
-          kind load docker-image api:latest
-          kind load docker-image database:latest
+          kind load docker-image frontend
+          kind load docker-image api
+          kind load docker-image database
 
-      # 9️⃣ Set up Helm
-      - name: Set up Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: v3.14.0
-
-      # 🔟 Deploy to Kind cluster using Helm
-      - name: Deploy to Kubernetes
+      - name: Deploy with Helm
         run: |
           helm upgrade --install frontend ./helm-charts/frontend \
             --set image.repository=frontend \
