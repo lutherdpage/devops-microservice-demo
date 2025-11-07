@@ -60,6 +60,7 @@ jobs:
         run: |
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > kubeconfig
           export KUBECONFIG=$PWD/kubeconfig
+	  kubectl config view
 
       # Deploy to Kubernetes using Helm
       - name: Deploy to Kubernetes
