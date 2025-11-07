@@ -51,26 +51,13 @@ jobs:
 
       # Set up Kind (local Kubernetes cluster)
       - name: Set up Kind
-        uses: engineerd/setup-kind@v0.6.0
+        uses: engineerd/setup-kind@v0.11.0
         with:
           version: v0.20.0
+          kubernetes-version: v1.27.0
 
       # Set up Helm
       - name: Set up Helm
         uses: azure/setup-helm@v3
         with:
           version: v3.14.0
-
-      # Load Docker images into Kind cluster
-      - name: Load Docker images into Kind
-        run: |
-          kind load docker-image ${{ secrets.DOCKER_HUB_USERNAME }}/frontend:latest
-          kind load docker-image ${{ secrets.DOCKER_HUB_USERNAME }}/api:latest
-          kind load docker-image ${{ secrets.DOCKER_HUB_USERNAME }}/database:latest
-
-      # Deploy to Kind cluster using Helm
-      - name: Deploy to Kubernetes
-        run: |
-          helm upgrade --install frontend ./helm-charts/frontend \
-            --set image.repository=${{ secrets.DOCKER_HUB_USERNAME }}/frontend \
-            --namespace default --create-namespace
