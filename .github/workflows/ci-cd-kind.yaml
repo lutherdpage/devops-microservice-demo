@@ -51,7 +51,7 @@ jobs:
 
       # 7️⃣ Set up Kind (local Kubernetes cluster)
       - name: Set up Kind
-        uses: engineerd/setup-kind@v0.6.0
+        uses: engineerd/setup-kind@v0.17.0
         with:
           version: v0.20.0
 
